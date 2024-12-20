@@ -134,7 +134,7 @@ Access: Expose the Argo CD API server. For a quick setup, use port forwarding:
   kubectl port-forward svc/argocd-server -n argocd 8080:443
   ```
 
-We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD web interface and set up your GitHub repository manifest and Kubernetes cluster.
+We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD web interface and set up your GitHub repository manifest and Kubernetes cluster and sync
 
 
 ![Screenshot 2024-12-20 070052](https://github.com/user-attachments/assets/848ce0a2-00ee-4f56-9851-4b86056784e5)
