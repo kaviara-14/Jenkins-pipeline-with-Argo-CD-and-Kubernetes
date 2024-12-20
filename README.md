@@ -140,5 +140,5 @@ We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD 
 ![Screenshot 2024-12-20 070052](https://github.com/user-attachments/assets/848ce0a2-00ee-4f56-9851-4b86056784e5)
 
 
-
+---
 
