@@ -2,6 +2,10 @@
 
 This project demonstrates the implementation of a Continuous Integration and Continuous Delivery (CI/CD) pipeline using **Jenkins**, **Argo CD**, and **Kubernetes**. It deploys a Spring Boot application to a Kubernetes cluster.
 
+<img src='https://user-images.githubusercontent.com/43399466/228301952-abc02ca2-9942-4a67-8293-f76647b6f9d8.png'>
+
+---
+
 ## Setup Instructions
 
 ### EC2 Instance Configuration
@@ -81,6 +85,10 @@ SonarQube ensures high-quality code and identifies bugs during static analysis. 
 
 This way, we completed CI (Continuous Integration) Part. Java application is built, SonarQube completed static code analysis and the latest image is created, push to DockerHub and updated Manifest repository with the latest image
 
+![Screenshot 2024-12-19 192237](https://github.com/user-attachments/assets/86427b8d-fbcf-4be9-8fa6-45b645bb496d)
+![Screenshot 2024-12-19 192332](https://github.com/user-attachments/assets/57c41126-7b77-4c5f-b462-c2147435545b)
+![Screenshot 2024-12-19 192356](https://github.com/user-attachments/assets/d9ec2b80-5f25-45ee-bf6d-453a4e2fae4e)
+
 ---
 
 # Continuous Delivery
@@ -129,6 +137,7 @@ Access: Expose the Argo CD API server. For a quick setup, use port forwarding:
 We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD web interface and set up your GitHub repository manifest and Kubernetes cluster.
 
 
+![Screenshot 2024-12-20 070052](https://github.com/user-attachments/assets/848ce0a2-00ee-4f56-9851-4b86056784e5)
 
 
 
