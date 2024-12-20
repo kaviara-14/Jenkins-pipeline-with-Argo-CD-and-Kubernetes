@@ -1,20 +1,27 @@
 # Jenkins-pipeline-with-Argo-CD-and-Kubernetes
 
-### Setup an AWS EC2 Instance 
-Create an Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium. Create new Key Pair and Create a new Security Group with traffic allowed from ssh, http and https.Add Security inbound rule for port 8010.
+This project demonstrates the implementation of a Continuous Integration and Continuous Delivery (CI/CD) pipeline using **Jenkins**, **Argo CD**, and **Kubernetes**. It deploys a Spring Boot application to a Kubernetes cluster.
+
+## Setup Instructions
+
+### EC2 Instance Configuration
+Launch an Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium. Create new Key Pair and Create a new Security Group with traffic allowed from ssh, http and https.Add Security inbound rule for port 8010.
 
 ``` bash
+  # Clone the repository and build the Spring Boot applicationn
   git clone
   cd Jenkins-pipeline-with-Argo-CD-and-Kubernetes/spring-boot-app
   sudo apt update
   sudo apt install maven
   mvn clean package
   mvn -v
+  # Install Docker
   sudo apt update
   sudo apt install docker.io
   sudo usermod -aG docker ubuntu
   sudo chmod 666 /var/run/docker.sock
   sudo systemctl restart docker
+  # Build and Run the container
   docker build -t ultimate-cicd-pipeline:v1 .
   docker run -d -p 8010:8080 -t ultimate-cicd-pipeline:v1
 
@@ -22,10 +29,11 @@ Create an Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium
 ---
 
 # Continuous Integration
-### 1 . Install Jenkins
-Follow the steps for installing Jenkins on the EC2 instance:
-  ``` bash
+### 1. Install Jenkins
+Follow the steps for installing Jenkins on the EC2 instance
 
+  ``` bash
+  # Install Jenkins on the EC2 instance
   sudo apt update
   sudo apt install openjdk-11-jre -y
   java -version
@@ -39,22 +47,25 @@ Follow the steps for installing Jenkins on the EC2 instance:
   sudo apt-get update
   sudo apt-get install jenkins
   sudo service jenkins start
+  # Retrieve the initial admin password
   cat /var/lib/jenkins/secrets/initialAdminPassword
+
   ```
 
-### 2. Install SonarQube 
+### 2. Install and Configure SonarQube
 SonarQube ensures high-quality code and identifies bugs during static analysis. Ensure port 9000 is open in your EC2 security group.
+
 ``` bash
-    # Follow these steps to configure it
+    # Launch a SonarQube container:
     docker run -d --name sonar -p 9000:9000 sonarqube:lts-community
   ```
 
-### 3. Setup Jenkins
+### 3. Jenkins Pipeline Configuration
  -  Install the required JenkinsPlugins like docker Pipeline and SonarQube Scanner
  -  Configure credentials in Jenkins
-     -  SonarQube Token: Generate a token in SonarQube and add it to Jenkins under Manage Jenkins > Credentials.
-     -  GitHub Token: Generate a personal access token in GitHub and add it to Jenkins.
-     -  Docker Hub Credentials: Add your Docker Hub username and password to Jenkins.
+     -  **SonarQube Token:** Generate a token in SonarQube and add it to Jenkins under Manage Jenkins > Credentials.
+     -  **GitHub Token:** Generate a personal access token in GitHub and add it to Jenkins.
+     -  **Docker Hub Credentials:** Add your Docker Hub username and password to Jenkins.
   
  -  Create a new pipeline
      - Navigate to New Item in Jenkins.
@@ -115,7 +126,8 @@ Access: Expose the Argo CD API server. For a quick setup, use port forwarding:
   kubectl port-forward svc/argocd-server -n argocd 8080:443
   ```
 
-We will use the Argo CD web interface to run sprint-boot-app.Set up Github Repository manifest and Kubernetes cluster.After Create. You can check if pods are running for sprint-boot-app
+We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD web interface and set up your GitHub repository manifest and Kubernetes cluster.
+
 
 
 
