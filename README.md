@@ -93,48 +93,88 @@ This way, we completed CI (Continuous Integration) Part. Java application is bui
 
 # Continuous Delivery
 
-### 1. Minikube Setup
-Minikube enables setting up and running a single-node Kubernetes cluster locally. This is ideal for testing applications before production deployment.
+### 1. Install AWS CLI, Kubectl, eksctl and helm chart
+```bash
+# Install AWS CLI v2 and configure
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+sudo apt install unzip
+unzip awscliv2.zip
+sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
+aws configure
 
-  ```bash
-  # Steps to Install Minikube
-  sudo apt-get update
-  sudo apt-get install docker.io -y
-  curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-  sudo install minikube-linux-amd64 /usr/local/bin/minikube
-  sudo usermod -aG docker $USER && newgrp docker
-  sudo reboot
-  minikube start --driver=docker
-  
-  ```
-### 2. Kubectl Installation
-Kubectl is a command-line tool to interact with Kubernetes clusters.
-  ```bash
-    # Steps to Install Minikube
-    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-    chmod +x ./kubectl
-    sudo mv ./kubectl /usr/local/bin
-    kubectl version
-  
-  ```
+# Install kubectl
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
 
-### 3. Install AgroCD
-Install Argo CD in your Kubernetes cluster. You can use the official manifests.
+# Install eksctl
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
 
-  ``` bash
-  kubectl create namespace argocd
-  kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-  kubectl get pods
-  kubectl get svc
-  kubectl edit svc example-argocd-server  # Change the Cluster Ip to NodePort
- ```
+# Install Helm Chart - Use the following script to install the helm chart 
+curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+sudo apt-get install apt-transport-https --yes
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm
+```
 
-Access: Expose the Argo CD API server. For a quick setup, use port forwarding:
-  ```bash
-  kubectl port-forward svc/argocd-server -n argocd 8080:443
-  ```
+### 2 . Creating an AWS EKS cluster using eksctl
+Now in this step, we are going to create AWS EKS cluster using eksctl
 
-We will use the Argo CD web interface to run sprint-boot-app.Access the Argo CD web interface and set up your GitHub repository manifest and Kubernetes cluster and sync
+```bash
+# You need the following to run the eksctl command
+eksctl create cluster --name eks-netflix-1 --version 1.24 --region us-east-1 --nodegroup-name worker-nodes --node-type t2.medium --nodes 1 --nodes-min 1 --nodes-max 1
+aws eks update-kubeconfig --region us-east-1 --name eks-netflix-1
+kubectl get nodes
+
+# Create IAM OIDC provider
+eksctl utils associate-iam-oidc-provider \
+    --region ${AWS_REGION} \
+    --cluster ${EKS_CLUSTER_NAME} \
+    --approve
+
+# Download IAM policy for the AWS Load Balancer Controller
+curl -fsSL -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.4.0/docs/install/iam_policy.json
+
+# Create a IAM role and ServiceAccount for the AWS Load Balancer controller using eksctl tool
+eksctl create iamserviceaccount \
+    --cluster=${EKS_CLUSTER_NAME} \
+    --namespace=kube-system \
+    --name=aws-load-balancer-controller \
+    --attach-policy-arn=arn:aws:iam::${AWS_ACCOUNT_ID}:policy/AWSLoadBalancerControllerIAMPolicy \
+    --override-existing-serviceaccounts \
+    --approve \
+    --region ${AWS_REGION}
+
+# Install the helm chart by specifying the chart values serviceAccount.create=false and serviceAccount.name=aws-load-balancer-controller
+helm repo add eks https://aws.github.io/eks-charts
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+    -n kube-system \
+    --set clusterName=${EKS_CLUSTER_NAME} \
+    --set serviceAccount.create=false \
+    --set serviceAccount.name=aws-load-balancer-controller
+
+# Install ArgoCD
+kubectl create namespace argocd 
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.4.7/manifests/install.yaml
+
+# By default, argocd-server is not publically exposed. In this scenario, we will use a Load Balancer to make it usable, get the url
+kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+
+# Get the Load balancer DNS
+export ARGOCD_SERVER=`kubectl get svc argocd-server -n argocd -o json | jq --raw-output '.status.loadBalancer.ingress[0].hostname'`
+echo $ARGOCD_SERVER
+export ARGO_PWD=`kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
+echo $ARGO_PWD
+
+```
+### Step 3 : Configure Argocd
+* Take the LoadBalancer link and open it in your browser.After installing ArgoCD, you need to set up your GitHub repository as a source for your application deployment. This typically involves configuring the connection to your repository and defining the source for your ArgoCD application.
+* Once you configured you have now successfully deployed an application using Argo CD.Argo CD is a Kubernetes controller, responsible for continuously monitoring all running applications and comparing their live state to the desired state specified in the Git repository.
+
 
 
 ![Screenshot 2024-12-20 070052](https://github.com/user-attachments/assets/848ce0a2-00ee-4f56-9851-4b86056784e5)
