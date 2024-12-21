@@ -19,12 +19,14 @@ Launch an Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium
   sudo apt install maven
   mvn clean package
   mvn -v
+
   # Install Docker
   sudo apt update
   sudo apt install docker.io
   sudo usermod -aG docker ubuntu
   sudo chmod 666 /var/run/docker.sock
   sudo systemctl restart docker
+
   # Build and Run the container
   docker build -t ultimate-cicd-pipeline:v1 .
   docker run -d -p 8010:8080 -t ultimate-cicd-pipeline:v1
@@ -92,6 +94,7 @@ This way, we completed CI (Continuous Integration) Part. Java application is bui
 ---
 
 # Continuous Delivery
+Launch an another Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium. Create new Key Pair and Create a new Security Group with traffic allowed from ssh, http and https.
 
 ### 1. Install AWS CLI, Kubectl, eksctl and helm chart
 ```bash
