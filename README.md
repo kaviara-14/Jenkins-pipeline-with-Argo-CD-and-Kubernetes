@@ -67,7 +67,7 @@ SonarQube ensures high-quality code and identifies bugs during static analysis. 
 ### 3. Jenkins Pipeline Configuration
  -  Install the required JenkinsPlugins like docker Pipeline and SonarQube Scanner
  -  Configure credentials in Jenkins
-     -  **SonarQube Token:** Generate a token in SonarQube and add it to Jenkins under Manage Jenkins > Credentials.
+     -  **Configure Sonar Server in Manage Jenkins :** Goto your Sonarqube Server, < Your Public IP >:9000, generate a token. In Jenkins, Goto Jenkins Dashboard → Manage Jenkins → Credentials → Add Secret Text. (Put copied token)
      -  **GitHub Token:** Generate a personal access token in GitHub and add it to Jenkins.
      -  **Docker Hub Credentials:** Add your Docker Hub username and password to Jenkins.
   
