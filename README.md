@@ -1,6 +1,6 @@
 # Jenkins-pipeline-with-Argo-CD-and-Kubernetes
 
-This project demonstrates the implementation of a Continuous Integration and Continuous Delivery (CI/CD) pipeline using **Jenkins**, **Argo CD**, and **Kubernetes**. It deploys a Spring Boot application to a Kubernetes cluster.
+This project demonstrates the implementation of a Continuous Integration and Continuous Delivery (CI/CD) pipeline using **Jenkins**, **Argo CD**, and **AWS EKS**. It deploys a Spring Boot application to a Kubernetes cluster.
 
 <img src='https://user-images.githubusercontent.com/43399466/228301952-abc02ca2-9942-4a67-8293-f76647b6f9d8.png'>
 
