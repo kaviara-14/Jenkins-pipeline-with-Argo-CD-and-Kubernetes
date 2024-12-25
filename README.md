@@ -27,8 +27,9 @@ Launch an Ec2 Instance with AMIs as Ubuntu and select Instance Type as t2.medium
   sudo chmod 666 /var/run/docker.sock
   sudo systemctl restart docker
 
+  # This Command used to build and push a multi-platform container image
+  docker buildx build --platform linux/arm64,linux/amd64 --push -t ultimate-cicd-pipeline:v1 .
   # Build and Run the container
-  docker build -t ultimate-cicd-pipeline:v1 .
   docker run -d -p 8010:8080 -t ultimate-cicd-pipeline:v1
 
 ```
